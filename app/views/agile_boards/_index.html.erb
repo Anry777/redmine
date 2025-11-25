@@ -75,9 +75,6 @@
 <% end %>
 
 <% content_for :sidebar do %>
- 
-  <%= render :partial => 'upgrade_to_pro' %>
- 
   <%= render :partial => 'issues_links' %>
   <% if @project && @project.assignable_users.any? %>
     <%= render :partial => 'members' %>
