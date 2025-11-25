@@ -12,12 +12,21 @@ services:
       REDMINE_DB_USERNAME: redmine
       REDMINE_DB_PASSWORD: redmine
       REDMINE_SECRET_KEY_BASE: supersecretkey
+      SECRET_KEY_BASE: supersecretkey
       TZ: Asia/Yekaterinburg
+    command: >
+      bash -lc "cd /usr/src/redmine &&
+      bundle install --without development test &&
+      bundle exec rake generate_secret_token RAILS_ENV=production &&
+      bundle exec rake db:migrate RAILS_ENV=production &&
+      bundle exec rake redmine:plugins:migrate RAILS_ENV=production &&
+      bundle exec rails server -b 0.0.0.0 -p 3000 -e production"
     volumes:
       - ./themes:/usr/src/redmine/public/themes
       - ./themes:/usr/src/redmine/themes
       - ./plugins:/usr/src/redmine/plugins
       - ./redmine_files:/usr/src/redmine/files
+      - ./config/database.yml:/usr/src/redmine/config/database.yml
 
   db:
     image: postgres:16-alpine

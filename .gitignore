@@ -1,0 +1,19 @@
+# Docker / runtime data
+postgres_data/
+redmine_files/
+
+# Redmine runtime
+log/
+tmp/
+files/
+
+# Local config (Docker uses env vars)
+config/database.yml
+
+# Bundler
+.bundle/
+vendor/bundle/
+
+# Generic
+*.log
+*.tmp
