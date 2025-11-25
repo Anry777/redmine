@@ -26,10 +26,24 @@ module RedmineAgile
         base.send(:include, InstanceMethods)
 
         base.class_eval do
+          alias_method :project_settings_tabs_without_agile, :project_settings_tabs
+          alias_method :project_settings_tabs, :project_settings_tabs_with_agile
         end
       end
 
       module InstanceMethods
+        def project_settings_tabs_with_agile
+          tabs = project_settings_tabs_without_agile
+
+          if User.current.allowed_to?(:manage_sprints, @project)
+            tabs.push(name: 'agile_sprints',
+                      action: :manage_sprints,
+                      partial: 'projects/project_agile_sprints',
+                      label: :label_agile_sprint_plural)
+          end
+
+          tabs
+        end
       end
     end
   end

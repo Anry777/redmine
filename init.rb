@@ -60,6 +60,7 @@ Redmine::Plugin.register :redmine_agile do
                                                      :backlog_autocomplete],
                                       agile_queries: :index }, read: true
     permission :view_agile_charts, { agile_charts: [:show, :render_chart, :select_version_chart] }, read: true
+    permission :manage_sprints, { agile_sprints: [:new, :create, :edit, :update, :destroy] }
   end
 end
 

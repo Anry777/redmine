@@ -17,9 +17,20 @@
 # You should have received a copy of the GNU General Public License
 # along with redmine_agile.  If not, see <http://www.gnu.org/licenses/>.
 
-class AgileData < ActiveRecord::Base
-  belongs_to :issue
-  belongs_to :agile_sprint
+module RedmineAgile
+  module Patches
 
-  validates :story_points, :numericality => {:only_integer => true, :greater_than_or_equal_to => 0, :allow_nil => true, :message => :invalid}
+    module TrackerPatch
+      def self.included(base)
+        base.class_eval do
+          acts_as_colored
+        end
+      end
+    end
+
+  end
+end
+
+unless Tracker.included_modules.include?(RedmineAgile::Patches::TrackerPatch)
+  Tracker.send(:include, RedmineAgile::Patches::TrackerPatch)
 end

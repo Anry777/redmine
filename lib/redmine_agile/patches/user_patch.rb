@@ -17,9 +17,22 @@
 # You should have received a copy of the GNU General Public License
 # along with redmine_agile.  If not, see <http://www.gnu.org/licenses/>.
 
-class AgileData < ActiveRecord::Base
-  belongs_to :issue
-  belongs_to :agile_sprint
+module RedmineAgile
+  module Patches
 
-  validates :story_points, :numericality => {:only_integer => true, :greater_than_or_equal_to => 0, :allow_nil => true, :message => :invalid}
+    module UserPatch
+      def self.included(base)
+        base.class_eval do
+          acts_as_colored
+          safe_attributes 'agile_color_attributes',
+            :if => lambda { |user, current_user| (current_user.admin? || (user.new_record? && current_user.anonymous? && Setting.self_registration?)) && RedmineAgile.use_colors? }
+        end
+      end
+    end
+
+  end
+end
+
+unless User.included_modules.include?(RedmineAgile::Patches::UserPatch)
+  User.send(:include, RedmineAgile::Patches::UserPatch)
 end

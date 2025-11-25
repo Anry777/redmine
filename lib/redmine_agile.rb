@@ -29,6 +29,8 @@ module RedmineAgile
 
   CABLE_CONNECTION = 'ActionCable::Connection::RedmineAgileConnection'
 
+  COLOR_BASE = ['issue', 'tracker', 'priority', 'spent_time', 'user', 'project'].freeze
+
   class << self
     def time_reports_items_limit
       by_settigns = Setting.plugin_redmine_agile['time_reports_items_limit'].to_i
@@ -76,12 +78,27 @@ module RedmineAgile
     end
 
     def use_colors?
-      false
-          end
+      COLOR_BASE.include?(color_base)
+    end
 
     def color_base
-      "none"
-          end
+      Setting.plugin_redmine_agile['color_on'] || 'none'
+    end
+
+    def color_prefix
+      'bk'
+    end
+
+    COLOR_BASE.each do |cb|
+      define_method "#{cb}_colors?" do
+        color_base == cb
+      end
+    end
+
+    # Alias для совместимости с user_color?
+    def user_color?
+      user_colors?
+    end
 
     def minimize_closed?
       Setting.plugin_redmine_agile['minimize_closed'].to_i > 0
@@ -130,12 +147,22 @@ module RedmineAgile
 
 end
 
+require File.dirname(__FILE__) + '/acts_as_colored/init'
+
 REDMINE_AGILE_REQUIRED_FILES = [
   'redmine_agile/hooks/views_layouts_hook',
   'redmine_agile/hooks/views_issues_hook',
   'redmine_agile/hooks/views_versions_hook',
+  'redmine_agile/hooks/views_projects_form_hook',
+  'redmine_agile/hooks/views_users_form_hook',
   'redmine_agile/hooks/controller_issue_hook',
   'redmine_agile/patches/issue_patch',
+  'redmine_agile/patches/tracker_patch',
+  'redmine_agile/patches/issue_priority_patch',
+  'redmine_agile/patches/user_patch',
+  'redmine_agile/patches/project_patch',
+  'redmine_agile/patches/projects_helper_patch',
+  'redmine_agile/patches/issues_controller_patch',
   'redmine_agile/helpers/agile_helper',
   'redmine_agile/charts/helper',
   'redmine_agile/charts/agile_chart',
@@ -144,6 +171,7 @@ REDMINE_AGILE_REQUIRED_FILES = [
   'redmine_agile/patches/issue_drop_patch',
   'redmine_agile/patches/action_cable_patch',
   'redmine_agile/patches/action_cable_base_patch',
+  'redmine_agile/patches/issue_query_patch',
   'redmine_agile/patches/application_controller_patch',
   'action_cable/connection/redmine_agile_connection',
   'action_cable/channels/agile_channel',

@@ -21,10 +21,41 @@
 
 module AgileBoardsHelper
   def agile_color_class(issue, options={})
-    ''
+    if options[:color_base]
+      color = case options[:color_base]
+      when AgileColor::COLOR_GROUPS[:issue]
+        issue.color
+      when AgileColor::COLOR_GROUPS[:tracker]
+        issue.tracker.color
+      when AgileColor::COLOR_GROUPS[:priority]
+        issue.priority.color
+      when AgileColor::COLOR_GROUPS[:spent_time]
+        AgileColor.for_spent_time(issue.estimated_hours, issue.spent_hours)
+      when AgileColor::COLOR_GROUPS[:project]
+        issue.project.color
       end
+    else
+      color = if RedmineAgile.tracker_colors?
+        issue.tracker.color
+      elsif RedmineAgile.issue_colors?
+        issue.color
+      elsif RedmineAgile.priority_colors?
+        issue.priority.color
+      elsif RedmineAgile.spent_time_colors?
+        AgileColor.for_spent_time(issue.estimated_hours, issue.spent_hours)
+      end
+    end
+    "#{RedmineAgile.color_prefix}-#{color}" if color && RedmineAgile.use_colors?
+  end
 
   def agile_user_color(user, options={})
+    user_color = user.color rescue nil
+    user_color ||= AgileColor.for_user(user.login)
+    if options[:color_base]
+      "border-left: 5px solid #{user_color}".html_safe if options[:color_base] == AgileColor::COLOR_GROUPS[:user]
+    elsif RedmineAgile.user_color?
+      "border-left: 5px solid #{user_color}".html_safe
+    end
   end
 
   def header_th(name, rowspan = 1, colspan = 1, leaf = nil)

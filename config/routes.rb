@@ -24,6 +24,7 @@ mount ActionCable.rup_server(RedmineAgile::CABLE_CONNECTION) => '/rup_cable_agil
 
 resources :projects do
   resources :agile_queries, only: [:new, :create]
+  resources :agile_sprints
 end
 
 resources :issues do
@@ -36,6 +37,9 @@ resources :issues do
 end
 
 resources :agile_queries
+
+get '/agile_colors/:object_type', :to => "agile_colors#index", :as => "agile_colors"
+put '/agile_colors/:object_type', :to => "agile_colors#update", :as => "update_agile_colors"
 
 get '/projects/:project_id/agile/charts', :to => "agile_charts#show", :as => "project_agile_charts"
 get '/agile/charts/', :to => "agile_charts#show", :as => "agile_charts"

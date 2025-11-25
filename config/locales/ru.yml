@@ -1,5 +1,10 @@
 # Russian strings go here for Rails i18n
 ru:
+  activerecord:
+    attributes:
+      agile_data:
+        agile_sprint_id: "Спринт"
+        agile_sprint: "Спринт"
   label_agile: Agile
   label_agile_board: Доска задач
   label_agile_board_plural: Доски задач

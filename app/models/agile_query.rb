@@ -105,9 +105,11 @@ class AgileQuery < Query
   end
 
   def color_base
+    options[:color_base] || RedmineAgile.color_base
   end
 
   def color_base=(value)
+    options[:color_base] = value
   end
 
   def default_chart

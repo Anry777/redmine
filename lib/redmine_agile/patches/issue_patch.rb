@@ -24,10 +24,18 @@ module RedmineAgile
       def self.included(base)
         base.send(:include, InstanceMethods)
         base.class_eval do
-          has_one :agile_data, :dependent => :destroy
-          delegate :position, :to => :agile_data, :allow_nil => true
+          has_one :agile_data, dependent: :destroy
+          has_one :agile_sprint, through: :agile_data
+          delegate :position, to: :agile_data, allow_nil: true
           scope :sorted_by_rank, lambda { eager_load(:agile_data).
                                           order(Arel.sql("COALESCE(#{AgileData.table_name}.position, 999999  )")) }
+
+          acts_as_colored
+
+          alias_method :css_classes_without_agile, :css_classes
+          alias_method :css_classes, :css_classes_with_agile
+          safe_attributes 'agile_color_attributes',
+            :if => lambda { |issue, user| user.allowed_to?(:edit_issues, issue.project) && user.allowed_to?(:view_agile_queries, issue.project) }
           safe_attributes 'agile_data_attributes', :if => lambda { |issue, user| issue.new_record? || user.allowed_to?(:edit_issues, issue.project) }
           accepts_nested_attributes_for :agile_data, :allow_destroy => true
 
@@ -59,6 +67,12 @@ module RedmineAgile
 
         def sub_issues
           descendants
+        end
+
+        def css_classes_with_agile(user = User.current)
+          s = css_classes_without_agile(user)
+          s << " #{RedmineAgile.color_prefix}-#{color}" if RedmineAgile.issue_colors? && color
+          s
         end
       end
     end

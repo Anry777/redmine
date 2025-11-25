@@ -5,6 +5,11 @@
 </p>
 
 <p>
+  <label><%= l(:label_agile_color_based_on) %></label>
+  <%= select_tag 'settings[color_on]', options_card_colors_for_select(@settings["color_on"]) %> <%= link_to l(:label_agile_manage_colors), agile_colors_path("tracker") %>
+</p>
+
+<p>
   <label><%= l(:label_agile_board_default_fields) %></label>
   <%= select_tag 'settings[default_columns]', options_for_select(AgileQuery.new(:column_names => RedmineAgile.default_columns).available_columns.collect{|column| [column.caption, column.name]}, RedmineAgile.default_columns), :multiple => true, :include_blank => true, :size => 10, :style => "width:150px" %>
 </p>
